@@ -1,6 +1,8 @@
+import { DefaultFlightService } from './default-flight.service';
 import { Component, OnInit } from '@angular/core';
 import { Flight } from '../../entities/flight';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { FlightService } from './flight.service';
 
 @Component({
   selector: 'flight-search',
@@ -12,11 +14,22 @@ export class FlightSearchComponent implements OnInit {
   from: string;
   to: string;
   selectedFlight: Flight;
-  flights: Array<Flight> = [];
+
+  // flights: Array<Flight> = [];
+
+  get flights() { // *ngFor="let f of flights"
+    return this.flightService.flights;
+  }
+
+  basket: object = {
+    "3": true,
+    "4": false,
+    "5": true
+  }
 
   // private http: HttpClient;
 
-  constructor(private http: HttpClient) { 
+  constructor(private flightService: FlightService) { 
     // this.http = http;
   }
 
@@ -25,20 +38,8 @@ export class FlightSearchComponent implements OnInit {
   }
 
   search(): void {
-  
-    const url = 'http://www.angular.at/api/flight';
-    const params = new HttpParams().set('from', this.from).set('to', this.to);
-    const headers = new HttpHeaders().set('Accept', 'application/json');
-
-    this.http.get<Flight[]>(url, { params, headers }).subscribe(
-      flights => {
-        this.flights = flights;
-      },
-      err => {
-        console.error('Error loading flights', err);
-      }
-    );
-
+    this.flightService.load(this.from, this.to);
+    
   }
 
   ngOnInit() {
